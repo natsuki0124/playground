@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048 行動版</title>
+    <style>
+        body { 
+            background-color: #faf8ef; 
+            font-family: Arial, sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; padding-top: 20px;
+            touch-action: none; /* 防止瀏覽器預設的下拉重新整理 */
+        }
+        .heading { width: 90vw; max-width: 400px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 48px; color: #776e65; margin: 0; }
+        .score-container { background: #bbada0; padding: 10px; border-radius: 6px; color: white; min-width: 60px; text-align: center; }
+        
+        #game-container { 
+            width: 90vw; height: 90vw; max-width: 400px; max-height: 400px;
+            background-color: #bbada0; border-radius: 6px; 
+            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); 
+            gap: 10px; padding: 10px; box-sizing: border-box; margin-top: 20px;
+        }
+        .grid-cell { 
+            background-color: rgba(238, 228, 218, 0.35); border-radius: 3px; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 8vw; font-weight: bold; color: #776e65; 
+        }
+        @media (min-width: 400px) { .grid-cell { font-size: 35px; } }
+
+        /* 數字顏色與之前相同 */
+        .tile-2 { background-color: #eee4da; }
+        .tile-4 { background-color: #ede0c8; }
+        .tile-8 { background-color: #f2b179; color: #f9f6f2; }
+        .tile-16 { background-color: #f59563; color: #f9f6f2; }
+        .tile-32 { background-color: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background-color: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background-color: #edcf72; color: #f9f6f2; font-size: 6vw; }
+    </style>
+</head>
+<body>
+
+    <div class="heading">
+        <h1>2048</h1>
+        <div class="score-container">SCORE<br><span id="score">0</span></div>
+    </div>
+    
+    <div id="game-container"></div>
+    <p style="color: #776e65;">請用手指滑動來移動方塊</p>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score');
+        let board = [];
+        let score = 0;
+
+        // 滑動偵測變數
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        function initGame() {
+            board = Array(16).fill(0);
+            score = 0;
+            scoreDisplay.innerText = score;
+            addTile(); addTile(); render();
+        }
+
+        function addTile() {
+            let emptyCells = board.map((val, idx) => val === 0 ? idx : null).filter(val => val !== null);
+            if (emptyCells.length > 0) {
+                let randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[randomCell] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function render() {
+            container.innerHTML = '';
+            board.forEach(value => {
+                const cell = document.createElement('div');
+                cell.classList.add('grid-cell');
+                if (value > 0) {
+                    cell.innerText = value;
+                    cell.classList.add('tile-' + value);
+                    if(value >= 128) cell.style.fontSize = '6vw';
+                }
+                container.appendChild(cell);
+            });
+        }
+
+        function slide(row) {
+            let arr = row.filter(val => val);
+            for (let i = 0; i < arr.length - 1; i++) {
+                if (arr[i] === arr[i + 1]) {
+                    arr[i] *= 2; score += arr[i]; arr.splice(i + 1, 1);
+                }
+            }
+            while (arr.length < 4) arr.push(0);
+            return arr;
+        }
+
+        function move(direction) {
+            let oldBoard = [...board];
+            for (let i = 0; i < 4; i++) {
+                let row = [];
+                for (let j = 0; j < 4; j++) {
+                    if (direction === 'LEFT' || direction === 'RIGHT') row.push(board[i * 4 + j]);
+                    else row.push(board[j * 4 + i]);
+                }
+                if (direction === 'RIGHT' || direction === 'DOWN') row.reverse();
+                row = slide(row);
+                if (direction === 'RIGHT' || direction === 'DOWN') row.reverse();
+                for (let j = 0; j < 4; j++) {
+                    if (direction === 'LEFT' || direction === 'RIGHT') board[i * 4 + j] = row[j];
+                    else board[j * 4 + i] = row[j];
+                }
+            }
+            if (JSON.stringify(oldBoard) !== JSON.stringify(board)) {
+                addTile(); scoreDisplay.innerText = score; render();
+            }
+        }
+
+        // --- 觸控邏輯 ---
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+
+        document.addEventListener('touchend', e => {
+            let touchEndX = e.changedTouches[0].screenX;
+            let touchEndY = e.changedTouches[0].screenY;
+            handleSwipe(touchEndX, touchEndY);
+        }, false);
+
+        function handleSwipe(endX, endY) {
+            let dx = endX - touchStartX;
+            let dy = endY - touchStartY;
+            
+            // 確保滑動距離夠大，避免誤觸
+            if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    move(dx > 0 ? 'RIGHT' : 'LEFT');
+                } else {
+                    move(dy > 0 ? 'DOWN' : 'UP');
+                }
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

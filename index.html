@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的遊戲大廳</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .game-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            width: 200px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 歡迎來到我的遊戲大廳</h1>
+
+    <div class="container">
+        <a href="hangman/index.html" class="game-card">
+            <div class="icon">😵</div>
+            <div class="game-title">吊死人遊戲</div>
+            <p class="description">考驗你的英文單字量！</p>
+        </a>
+
+        <a href="2048/index.html" class="game-card">
+            <div class="icon">🔢</div>
+            <div class="game-title">經典 2048</div>
+            <p class="description">滑動數字，挑戰極限分數。</p>
+        </a>
+    </div>
+
+</body>
+</html>
