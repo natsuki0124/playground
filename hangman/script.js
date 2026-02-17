@@ -1,4 +1,4 @@
-const words = ["JAVASCRIPT", "PYTHON", "PROGRAMMING", "INTERFACE", "WIZARD", "GALAXY"];
+const words = ["LUCKY", "ORANGE", "COMPUTER", "MONEY", "HOURSE", "SUCCESS", "FORTUNE", "FLOWER"];
 let selectedWord = "";
 let guessedLetters = [];
 let mistakes = 0;
@@ -85,4 +85,5 @@ function drawHangman(step) {
 }
 
 document.getElementById('resetBtn').onclick = initGame;
+
 initGame();
